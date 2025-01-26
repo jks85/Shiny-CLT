@@ -1,0 +1,125 @@
+---
+title: "Simulating the CLT and LLN"
+author: "Julian Simington"
+date: "2025-01-25"
+output: ioslides_presentation
+runtime: shiny
+---
+
+```{r setup, include=FALSE, echo = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r packages, results='hide', message=FALSE, warning=FALSE}
+# install packages required for data processing and analysis}
+install.packages("shiny", repos = "http://cran.us.r-project.org")
+library(shiny)
+install.packages("ggplot2", repos = "http://cran.us.r-project.org")
+library(ggplot2)
+
+```
+
+## Description
+
+This interactive web app allows users to visualize the Central Limit Theorem (CLT) and the Law of Large Numbers (LLN). The app contains the following features:
+  
+1. Simulates random samples from a continuous uniform distribution (min = 0 and max = 10).
+2. Allows users to input the number of samples and the sample size.
+3. Plots a histogram of the **sample means of each sample**.
+4. Plots the theoretical mean and observed mean of the samples.
+5. Displays a table containing theoretical and observed statistics.
+
+## CLT and LLN
+
+Summaries of the CLT and LLN:
+  
+* CLT-- The sample mean of independent, identically distributed random variables becomes approximately normally distributed when the sample size becomes sufficiently large.
+* LLN-- The observed sample mean approaches the theoretical population mean as the sample size increases.
+\  
+  
+The next slide displays a static plot from the app. In the interactive app users are instructed to input two parameters.  
+  
+Note that the purple line is the theoretical mean of the random samples, while the red line is the observed mean.
+
+## Simulating the CLT and LLN
+  
+Below is a example histogram from the app with 5 samples of size 2. Users can modify these parameters at <https://jks85.shinyapps.io/shiny-clt/>.
+  
+
+```{r interactive_plot, message=FALSE, warning=FALSE, eval=TRUE, fig.height=4}
+# sample plot. k and n represent values that would be input
+
+# simulate k uniform random variables on [0,1]
+set.seed(5)
+
+k = 2 # number of uniform variables (sample size). USER INPUT. DEFAULT 25
+n = 5 # number of samples of the k variables. USER INPUT. DEFAULT 1000
+
+uni_vars <- rep(NA,k) # initialize empty variable
+
+sample_mat <- matrix(rep(NA,n*k), nrow = n, ncol = k) # create empty matrix. each row corresponds to a sample
+
+#create matrix of uniform samples
+for (i in 1:n){
+  sample_i <- runif(k, min = 0, max = 10) # simulate k random uniform vars on [0,1]
+  sample_mat[i,] <- sample_i # put sample i into row i
+
+}
+
+sample_means <- apply(sample_mat, MARGIN = 1, mean)
+sample_sd <-apply(sample_mat, MARGIN = 1, sd)
+
+
+
+# matrix containing mean and sd of each sample (and sample id) 
+sample_distr_mat <- data.frame(sample_num = 1:n, 
+                               mean = sample_means,
+                               std_dev = sample_sd)
+
+mean_xbar_sim <- mean(sample_distr_mat$mean) # OUTPUT THIS VALUE
+sd_xbar_sim <- sd(sample_distr_mat$mean)     # OUTPUT THIS VALUE
+
+ggplot(sample_distr_mat, aes(x=mean)) + #OUTPUT THIS PLOT
+        geom_histogram(color = 'black',
+                       fill = 'lightblue') +
+        geom_vline(xintercept = mean_xbar_sim,
+                   linetype = 2,
+                   linewidth = 1.25,
+                   color = 'red') +
+        geom_vline(xintercept = 5,
+                   linetype = 2,
+                   linewidth = 1.25,
+                   color = 'purple') +
+        xlab('Sample Mean') +
+        ylab('Frequency')
+            
+
+# data frame containing sampling distr stats
+sample_mean_dist <- data.frame(mean = mean_xbar_sim ,
+                               std_dev = sd_xbar_sim)
+
+# data frame containing sampling distr stats and population parameters
+test_df <- data.frame(Stat = c("Sample Mean of x_bar", 
+                        "Sample Std Dev of x_bar",
+                        "Population Mean of x_bar", 
+                        "Population Std Dev of x_bar" ),
+                      Value = c(round(mean_xbar_sim,2),
+                                round(sd_xbar_sim,2), 
+                                5, 
+                                round(sqrt((1-0)^2/(12*n)),2)))
+
+
+```
+
+## Goals of the App
+Changing the input parameters lets users visualize 
+
+* how the *number of samples* affects the *shape* of the histogram (CLT). 
+* how the *sample size* affects the *difference* between the observed and theoretical means (LLN). 
+
+Parameters default to small values to incentivize users to pick larger numbers. This should allowing them to observe the CLT and LLN visually. 
+
+Thank you for your consideration.
+
+
+
