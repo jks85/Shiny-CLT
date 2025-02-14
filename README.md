@@ -1,3 +1,5 @@
+### *Simulating the Central Limit Theorem and Law of Large Numbers*:
+
 This repo contains code that contains code that deploys an interactive [R Shiny App](https://jks85.shinyapps.io/shiny-clt/) and 
 a [slide presentation](https://jks85.github.io/Shiny-CLT/).
 
